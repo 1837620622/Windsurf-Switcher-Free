@@ -706,7 +706,7 @@ class SidebarProvider implements vscode.WebviewViewProvider {
     <title>Windsurf 账户切换</title>
     <style>
         /* ================================================================ */
-        /* 基础样式                                                          */
+        /* 基础样式 - 现代化设计                                              */
         /* ================================================================ */
         * {
             margin: 0;
@@ -715,126 +715,201 @@ class SidebarProvider implements vscode.WebviewViewProvider {
         }
         
         body {
-            font-family: var(--vscode-font-family);
-            font-size: var(--vscode-font-size);
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            font-size: 13px;
             color: var(--vscode-foreground);
-            background-color: var(--vscode-sideBar-background);
-            padding: 12px;
+            background: linear-gradient(180deg, var(--vscode-sideBar-background) 0%, var(--vscode-editor-background) 100%);
+            padding: 16px;
+            min-height: 100vh;
         }
         
         /* ================================================================ */
-        /* 标题区域                                                          */
+        /* 头部区域 - 渐变背景                                                */
         /* ================================================================ */
         .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 12px;
+            padding: 20px;
             margin-bottom: 16px;
-            padding-bottom: 12px;
-            border-bottom: 1px solid var(--vscode-panel-border);
+            text-align: center;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
         }
         
         .header h2 {
-            font-size: 14px;
-            font-weight: 600;
-            color: var(--vscode-foreground);
-            margin-bottom: 4px;
+            font-size: 18px;
+            font-weight: 700;
+            color: #ffffff;
+            margin-bottom: 6px;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.2);
         }
         
         .header p {
-            font-size: 11px;
-            color: var(--vscode-descriptionForeground);
+            font-size: 12px;
+            color: rgba(255,255,255,0.9);
         }
         
-        /* ================================================================ */
-        /* 操作按钮区域                                                       */
-        /* ================================================================ */
-        .actions {
+        .header .feature-tags {
             display: flex;
+            justify-content: center;
             gap: 8px;
-            margin-bottom: 16px;
+            margin-top: 10px;
             flex-wrap: wrap;
         }
         
+        .header .tag {
+            background: rgba(255,255,255,0.2);
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 10px;
+            color: #fff;
+            backdrop-filter: blur(10px);
+        }
+        
+        /* ================================================================ */
+        /* 操作按钮区域 - 卡片式布局                                          */
+        /* ================================================================ */
+        .actions {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-bottom: 16px;
+        }
+        
         .btn {
-            padding: 6px 12px;
+            padding: 12px 16px;
             font-size: 12px;
+            font-weight: 600;
             border: none;
-            border-radius: 4px;
+            border-radius: 10px;
             cursor: pointer;
-            transition: all 0.2s;
+            transition: all 0.3s ease;
             display: flex;
             align-items: center;
-            gap: 4px;
+            justify-content: center;
+            gap: 6px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        
+        .btn:active {
+            transform: scale(0.98);
         }
         
         .btn-primary {
-            background-color: var(--vscode-button-background);
-            color: var(--vscode-button-foreground);
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #ffffff;
         }
         
         .btn-primary:hover {
-            background-color: var(--vscode-button-hoverBackground);
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+            transform: translateY(-2px);
         }
         
         .btn-secondary {
-            background-color: var(--vscode-button-secondaryBackground);
-            color: var(--vscode-button-secondaryForeground);
+            background: var(--vscode-editor-background);
+            color: var(--vscode-foreground);
+            border: 1px solid var(--vscode-panel-border);
         }
         
         .btn-secondary:hover {
-            background-color: var(--vscode-button-secondaryHoverBackground);
+            background: var(--vscode-list-hoverBackground);
+            border-color: #667eea;
+        }
+        
+        .btn-success {
+            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+            color: #ffffff;
         }
         
         .btn-danger {
-            background-color: #c42b1c;
-            color: white;
+            background: linear-gradient(135deg, #eb3349 0%, #f45c43 100%);
+            color: #ffffff;
         }
         
         .btn-danger:hover {
-            background-color: #a52714;
+            box-shadow: 0 4px 15px rgba(235, 51, 73, 0.4);
+        }
+        
+        .btn-full {
+            grid-column: span 2;
         }
         
         /* ================================================================ */
-        /* 账户列表                                                          */
+        /* 账户列表 - 卡片设计                                                */
         /* ================================================================ */
+        .section-title {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--vscode-descriptionForeground);
+            margin-bottom: 10px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
         .profile-list {
             display: flex;
             flex-direction: column;
-            gap: 8px;
+            gap: 10px;
         }
         
         .profile-item {
-            background-color: var(--vscode-editor-background);
+            background: var(--vscode-editor-background);
             border: 1px solid var(--vscode-panel-border);
-            border-radius: 6px;
-            padding: 12px;
-            transition: all 0.2s;
+            border-radius: 12px;
+            padding: 14px;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .profile-item::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 4px;
+            height: 100%;
+            background: linear-gradient(180deg, #667eea 0%, #764ba2 100%);
+            opacity: 0;
+            transition: opacity 0.3s;
         }
         
         .profile-item:hover {
-            border-color: var(--vscode-focusBorder);
+            border-color: #667eea;
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.15);
+            transform: translateX(4px);
+        }
+        
+        .profile-item:hover::before {
+            opacity: 1;
         }
         
         .profile-item.active {
-            border-color: var(--vscode-button-background);
-            background-color: var(--vscode-list-activeSelectionBackground);
+            border-color: #667eea;
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
+        }
+        
+        .profile-item.active::before {
+            opacity: 1;
         }
         
         .profile-header {
             display: flex;
             justify-content: space-between;
             align-items: flex-start;
-            margin-bottom: 8px;
+            margin-bottom: 10px;
         }
         
         .profile-info h3 {
-            font-size: 13px;
+            font-size: 14px;
             font-weight: 600;
             color: var(--vscode-foreground);
-            margin-bottom: 2px;
+            margin-bottom: 4px;
         }
         
         .profile-info .email {
             font-size: 11px;
-            color: var(--vscode-descriptionForeground);
+            color: #667eea;
+            font-weight: 500;
         }
         
         .profile-info .time {
@@ -845,102 +920,202 @@ class SidebarProvider implements vscode.WebviewViewProvider {
         
         .profile-badge {
             font-size: 10px;
-            padding: 2px 6px;
-            border-radius: 10px;
-            background-color: var(--vscode-button-background);
-            color: var(--vscode-button-foreground);
+            padding: 4px 10px;
+            border-radius: 20px;
+            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+            color: #ffffff;
+            font-weight: 600;
         }
         
         .profile-actions {
             display: flex;
-            gap: 6px;
-            margin-top: 8px;
+            gap: 8px;
+            margin-top: 10px;
         }
         
         .profile-actions .btn {
-            padding: 4px 8px;
+            padding: 8px 14px;
             font-size: 11px;
+            flex: 1;
         }
         
         /* ================================================================ */
-        /* 保存表单                                                          */
+        /* 保存表单 - 弹出式设计                                              */
         /* ================================================================ */
         .save-form {
-            background-color: var(--vscode-editor-background);
-            border: 1px solid var(--vscode-panel-border);
-            border-radius: 6px;
-            padding: 12px;
+            background: var(--vscode-editor-background);
+            border: 2px solid #667eea;
+            border-radius: 12px;
+            padding: 16px;
             margin-bottom: 16px;
             display: none;
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.2);
         }
         
         .save-form.show {
             display: block;
+            animation: slideDown 0.3s ease;
+        }
+        
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
         
         .save-form h3 {
-            font-size: 13px;
+            font-size: 14px;
             font-weight: 600;
-            margin-bottom: 12px;
+            margin-bottom: 14px;
+            color: #667eea;
         }
         
         .form-group {
-            margin-bottom: 10px;
+            margin-bottom: 12px;
         }
         
         .form-group label {
             display: block;
             font-size: 11px;
+            font-weight: 600;
             color: var(--vscode-descriptionForeground);
-            margin-bottom: 4px;
+            margin-bottom: 6px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
         
         .form-group input {
             width: 100%;
-            padding: 6px 8px;
-            font-size: 12px;
-            border: 1px solid var(--vscode-input-border);
-            border-radius: 4px;
-            background-color: var(--vscode-input-background);
+            padding: 10px 12px;
+            font-size: 13px;
+            border: 2px solid var(--vscode-input-border);
+            border-radius: 8px;
+            background: var(--vscode-input-background);
             color: var(--vscode-input-foreground);
+            transition: all 0.3s ease;
         }
         
         .form-group input:focus {
             outline: none;
-            border-color: var(--vscode-focusBorder);
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.2);
         }
         
         .form-actions {
             display: flex;
-            gap: 8px;
+            gap: 10px;
             justify-content: flex-end;
+            margin-top: 14px;
         }
         
         /* ================================================================ */
-        /* 空状态                                                            */
+        /* 空状态 - 引导设计                                                  */
         /* ================================================================ */
         .empty-state {
             text-align: center;
-            padding: 24px;
+            padding: 30px 20px;
             color: var(--vscode-descriptionForeground);
+        }
+        
+        .empty-state .icon {
+            font-size: 40px;
+            margin-bottom: 12px;
+        }
+        
+        .empty-state h4 {
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 6px;
+            color: var(--vscode-foreground);
         }
         
         .empty-state p {
             font-size: 12px;
-            margin-bottom: 12px;
+            line-height: 1.5;
         }
         
         /* ================================================================ */
         /* 提示信息                                                          */
         /* ================================================================ */
         .tip {
-            font-size: 10px;
+            font-size: 11px;
             color: var(--vscode-descriptionForeground);
             margin-top: 16px;
-            padding: 8px;
-            background-color: var(--vscode-textBlockQuote-background);
-            border-radius: 4px;
-            border-left: 3px solid var(--vscode-textLink-foreground);
+            padding: 12px;
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
+            border-radius: 10px;
+            border-left: 4px solid #667eea;
+        }
+        
+        /* ================================================================ */
+        /* 作者水印区域                                                       */
+        /* ================================================================ */
+        .author-watermark {
+            margin-top: 20px;
+            padding: 16px;
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.05) 0%, rgba(118, 75, 162, 0.05) 100%);
+            border-radius: 12px;
+            border: 1px dashed var(--vscode-panel-border);
+            text-align: center;
+        }
+        
+        .author-watermark .author-title {
+            font-size: 11px;
+            color: var(--vscode-descriptionForeground);
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        .author-watermark .author-name {
+            font-size: 14px;
+            font-weight: 700;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 8px;
+        }
+        
+        .author-watermark .author-links {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            font-size: 10px;
+            color: var(--vscode-descriptionForeground);
+        }
+        
+        .author-watermark .author-links a {
+            color: #667eea;
+            text-decoration: none;
+        }
+        
+        .author-watermark .author-links a:hover {
+            text-decoration: underline;
+        }
+        
+        .author-watermark .github-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            margin-top: 8px;
+            padding: 6px 12px;
+            background: var(--vscode-editor-background);
+            border-radius: 20px;
+            font-size: 11px;
+            color: var(--vscode-foreground);
+            text-decoration: none;
+            transition: all 0.3s;
+        }
+        
+        .author-watermark .github-link:hover {
+            background: #667eea;
+            color: #fff;
         }
     </style>
 </head>
@@ -949,22 +1124,27 @@ class SidebarProvider implements vscode.WebviewViewProvider {
     <!-- 头部区域                                                          -->
     <!-- ================================================================ -->
     <div class="header">
-        <h2>🔄 Windsurf 账户切换</h2>
-        <p>无心跳检测 · 无自动下线 · 完全本地化</p>
+        <h2>🔄 Windsurf 账户切换器</h2>
+        <p>无限畅享 · 自由切换 · 完全免费</p>
+        <div class="feature-tags">
+            <span class="tag">✨ 无心跳检测</span>
+            <span class="tag">🔒 无自动下线</span>
+            <span class="tag">💾 本地存储</span>
+        </div>
     </div>
     
     <!-- ================================================================ -->
     <!-- 操作按钮                                                          -->
     <!-- ================================================================ -->
     <div class="actions">
-        <button class="btn btn-primary" onclick="showSaveForm()">
+        <button class="btn btn-primary btn-full" onclick="showSaveForm()">
             💾 保存当前账户
         </button>
         <button class="btn btn-secondary" onclick="importProfile()">
-            📥 导入配置
+            📥 导入
         </button>
         <button class="btn btn-secondary" onclick="openProfilesDir()">
-            📂 打开目录
+            📂 目录
         </button>
     </div>
     
@@ -972,28 +1152,30 @@ class SidebarProvider implements vscode.WebviewViewProvider {
     <!-- 保存表单                                                          -->
     <!-- ================================================================ -->
     <div class="save-form" id="saveForm">
-        <h3>保存当前账户</h3>
+        <h3>💾 保存当前账户</h3>
         <div class="form-group">
-            <label for="profileName">账户名称</label>
-            <input type="text" id="profileName" placeholder="例如：工作账户">
+            <label>账户名称</label>
+            <input type="text" id="profileName" placeholder="输入一个便于识别的名称">
         </div>
         <div class="form-group">
-            <label for="profileEmail">邮箱</label>
-            <input type="email" id="profileEmail" placeholder="例如：example@email.com">
+            <label>邮箱地址</label>
+            <input type="email" id="profileEmail" placeholder="your@email.com">
         </div>
         <div class="form-actions">
             <button class="btn btn-secondary" onclick="hideSaveForm()">取消</button>
-            <button class="btn btn-primary" onclick="saveProfile()">保存</button>
+            <button class="btn btn-primary" onclick="saveProfile()">确认保存</button>
         </div>
     </div>
     
     <!-- ================================================================ -->
     <!-- 账户列表                                                          -->
     <!-- ================================================================ -->
+    <div class="section-title">📋 已保存的账户</div>
     <div class="profile-list" id="profileList">
         <div class="empty-state">
-            <p>暂无保存的账户</p>
-            <p>点击「保存当前账户」开始使用</p>
+            <div class="icon">📭</div>
+            <h4>暂无保存的账户</h4>
+            <p>点击上方「保存当前账户」按钮<br>开始管理你的 Windsurf 账户</p>
         </div>
     </div>
     
@@ -1001,7 +1183,23 @@ class SidebarProvider implements vscode.WebviewViewProvider {
     <!-- 提示信息                                                          -->
     <!-- ================================================================ -->
     <div class="tip">
-        💡 提示：切换账户后需要重启 Windsurf 才能生效
+        💡 <strong>提示：</strong>切换账户后需要重启 Windsurf 才能生效
+    </div>
+    
+    <!-- ================================================================ -->
+    <!-- 作者水印                                                          -->
+    <!-- ================================================================ -->
+    <div class="author-watermark">
+        <div class="author-title">✨ 开发者 ✨</div>
+        <div class="author-name">万能程序员：传康KK</div>
+        <div class="author-links">
+            <span>📱 微信：1837620622</span>
+            <span>📧 邮箱：2040168455@qq.com</span>
+            <span>🎬 咸鱼/B站：万能程序员</span>
+        </div>
+        <a class="github-link" href="https://github.com/1837620622" target="_blank">
+            ⭐ GitHub: github.com/1837620622
+        </a>
     </div>
     
     <!-- ================================================================ -->
@@ -1045,8 +1243,9 @@ class SidebarProvider implements vscode.WebviewViewProvider {
             if (profiles.length === 0) {
                 container.innerHTML = \`
                     <div class="empty-state">
-                        <p>暂无保存的账户</p>
-                        <p>点击「保存当前账户」开始使用</p>
+                        <div class="icon">📭</div>
+                        <h4>暂无保存的账户</h4>
+                        <p>点击上方「保存当前账户」按钮<br>开始管理你的 Windsurf 账户</p>
                     </div>
                 \`;
                 return;
@@ -1056,19 +1255,19 @@ class SidebarProvider implements vscode.WebviewViewProvider {
                 <div class="profile-item \${profile.id === currentProfileId ? 'active' : ''}">
                     <div class="profile-header">
                         <div class="profile-info">
-                            <h3>\${escapeHtml(profile.name)}</h3>
-                            <div class="email">\${escapeHtml(profile.email)}</div>
-                            <div class="time">保存于: \${escapeHtml(profile.savedAt)}</div>
+                            <h3>👤 \${escapeHtml(profile.name)}</h3>
+                            <div class="email">📧 \${escapeHtml(profile.email)}</div>
+                            <div class="time">🕐 \${escapeHtml(profile.savedAt)}</div>
                         </div>
-                        \${profile.id === currentProfileId ? '<span class="profile-badge">当前</span>' : ''}
+                        \${profile.id === currentProfileId ? '<span class="profile-badge">✓ 当前</span>' : ''}
                     </div>
                     <div class="profile-actions">
                         \${profile.id !== currentProfileId ? 
-                            \`<button class="btn btn-primary" onclick="switchProfile('\${profile.id}')">切换</button>\` : 
-                            ''
+                            \`<button class="btn btn-success" onclick="switchProfile('\${profile.id}')">🔄 切换</button>\` : 
+                            '<button class="btn btn-secondary" disabled>✓ 已激活</button>'
                         }
-                        <button class="btn btn-secondary" onclick="exportProfile('\${profile.id}')">导出</button>
-                        <button class="btn btn-danger" onclick="deleteProfile('\${profile.id}')">删除</button>
+                        <button class="btn btn-secondary" onclick="exportProfile('\${profile.id}')">📤 导出</button>
+                        <button class="btn btn-danger" onclick="deleteProfile('\${profile.id}')">🗑️ 删除</button>
                     </div>
                 </div>
             \`).join('');

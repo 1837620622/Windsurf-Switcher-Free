@@ -1,5 +1,5 @@
-"use strict";var W=Object.create;var y=Object.defineProperty;var $=Object.getOwnPropertyDescriptor;var L=Object.getOwnPropertyNames;var B=Object.getPrototypeOf,_=Object.prototype.hasOwnProperty;var z=(s,e)=>{for(var o in e)y(s,o,{get:e[o],enumerable:!0})},C=(s,e,o,t)=>{if(e&&typeof e=="object"||typeof e=="function")for(let r of L(e))!_.call(s,r)&&r!==o&&y(s,r,{get:()=>e[r],enumerable:!(t=$(e,r))||t.enumerable});return s};var P=(s,e,o)=>(o=s!=null?W(B(s)):{},C(e||!s||!s.__esModule?y(o,"default",{value:s,enumerable:!0}):o,s)),N=s=>C(y({},"__esModule",{value:!0}),s);var A={};z(A,{activate:()=>O,deactivate:()=>T});module.exports=N(A);var a=P(require("vscode")),i=P(require("fs")),n=P(require("path")),w=P(require("os")),M=n.join(w.homedir(),"Library","Application Support","Windsurf"),x=n.join(M,"User","globalStorage"),m=n.join(w.homedir(),".windsurf-switcher-free"),S=n.join(m,"profiles.json");function g(s){i.existsSync(s)||i.mkdirSync(s,{recursive:!0})}function E(){return"xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g,s=>{let e=Math.random()*16|0;return(s==="x"?e:e&3|8).toString(16)})}function k(){return new Date().toLocaleString("zh-CN",{year:"numeric",month:"2-digit",day:"2-digit",hour:"2-digit",minute:"2-digit",second:"2-digit"})}function v(s,e,o=[]){g(e);let t=i.readdirSync(s,{withFileTypes:!0});for(let r of t){if(o.some(c=>c.startsWith("*.")?r.name.endsWith(c.slice(1)):c.endsWith("*")?r.name.startsWith(c.slice(0,-1)):r.name===c))continue;let f=n.join(s,r.name),l=n.join(e,r.name);r.isDirectory()?v(f,l,o):i.copyFileSync(f,l)}}function D(s){i.existsSync(s)&&i.rmSync(s,{recursive:!0,force:!0})}var F=class{constructor(){this.storageData=this.loadStorage()}loadStorage(){if(g(m),i.existsSync(S))try{let e=i.readFileSync(S,"utf-8");return JSON.parse(e)}catch(e){console.error("\u52A0\u8F7D\u914D\u7F6E\u6587\u4EF6\u5931\u8D25:",e)}return{profiles:[],currentProfile:""}}saveStorage(){g(m),i.writeFileSync(S,JSON.stringify(this.storageData,null,2))}getProfiles(){return this.storageData.profiles}getCurrentProfileId(){return this.storageData.currentProfile}saveCurrentProfile(e,o){let t=E(),r=n.join(m,"profiles",t);g(r);let d=n.join(r,"globalStorage");i.existsSync(x)&&v(x,d,["*.backup.*","ms-*"]);let f=["Cookies","Cookies-journal","Local Storage","Session Storage","Network Persistent State"];for(let h of f){let u=n.join(M,h),b=n.join(r,h);i.existsSync(u)&&(i.statSync(u).isDirectory()?v(u,b):i.copyFileSync(u,b))}let l=n.join(w.homedir(),".codeium","windsurf"),c=n.join(r,"codeium");if(i.existsSync(l)){g(c);let h=["installation_id","user_settings.pb"];for(let u of h){let b=n.join(l,u);i.existsSync(b)&&i.copyFileSync(b,n.join(c,u))}}let p={id:t,name:e,email:o,savedAt:k(),profilePath:r},j=n.join(r,"profile_meta.json");return i.writeFileSync(j,JSON.stringify({name:e,email:o,saved_at:k()},null,2)),this.storageData.profiles.push(p),this.storageData.currentProfile=t,this.saveStorage(),p}importProfile(e){let o=n.join(e,"profile_meta.json"),t="\u5BFC\u5165\u7684\u8D26\u6237",r="unknown@example.com";if(i.existsSync(o))try{let c=JSON.parse(i.readFileSync(o,"utf-8"));t=c.name||t,r=c.email||r}catch(c){console.error("\u8BFB\u53D6 profile_meta.json \u5931\u8D25:",c)}let d=E(),f=n.join(m,"profiles",d);v(e,f);let l={id:d,name:t,email:r,savedAt:k(),profilePath:f};return this.storageData.profiles.push(l),this.saveStorage(),l}switchProfile(e){let o=this.storageData.profiles.find(t=>t.id===e);if(!o)return!1;if(!i.existsSync(o.profilePath))return a.window.showErrorMessage(`\u8D26\u6237\u914D\u7F6E\u76EE\u5F55\u4E0D\u5B58\u5728: ${o.profilePath}`),!1;try{let t=n.join(o.profilePath,"globalStorage");i.existsSync(t)&&(i.existsSync(x)&&D(x),v(t,x));let r=["Cookies","Cookies-journal","Local Storage","Session Storage","Network Persistent State"];for(let l of r){let c=n.join(o.profilePath,l),p=n.join(M,l);i.existsSync(c)&&(i.existsSync(p)&&(i.statSync(p).isDirectory()?D(p):i.unlinkSync(p)),i.statSync(c).isDirectory()?v(c,p):i.copyFileSync(c,p))}let d=n.join(o.profilePath,"codeium"),f=n.join(w.homedir(),".codeium","windsurf");if(i.existsSync(d)){g(f);let l=i.readdirSync(d);for(let c of l)i.copyFileSync(n.join(d,c),n.join(f,c))}return this.storageData.currentProfile=e,this.saveStorage(),!0}catch(t){return console.error("\u5207\u6362\u8D26\u6237\u5931\u8D25:",t),a.window.showErrorMessage(`\u5207\u6362\u8D26\u6237\u5931\u8D25: ${t}`),!1}}deleteProfile(e){let o=this.storageData.profiles.findIndex(r=>r.id===e);if(o===-1)return!1;let t=this.storageData.profiles[o];return D(t.profilePath),this.storageData.profiles.splice(o,1),this.storageData.currentProfile===e&&(this.storageData.currentProfile=""),this.saveStorage(),!0}exportProfile(e,o){let t=this.storageData.profiles.find(r=>r.id===e);if(!t)return!1;try{return v(t.profilePath,o),!0}catch(r){return console.error("\u5BFC\u51FA\u8D26\u6237\u5931\u8D25:",r),!1}}},I=class{constructor(e,o){this.extensionUri=e;this.profileManager=o}resolveWebviewView(e,o,t){this._view=e,e.webview.options={enableScripts:!0,localResourceRoots:[this.extensionUri]},e.webview.html=this.getHtmlContent(),e.webview.onDidReceiveMessage(async r=>{switch(r.type){case"getProfiles":this.sendProfiles();break;case"saveProfile":await this.handleSaveProfile(r.name,r.email);break;case"switchProfile":await this.handleSwitchProfile(r.profileId);break;case"deleteProfile":await this.handleDeleteProfile(r.profileId);break;case"importProfile":await this.handleImportProfile();break;case"exportProfile":await this.handleExportProfile(r.profileId);break;case"openProfilesDir":await this.handleOpenProfilesDir();break}})}sendProfiles(){this._view&&this._view.webview.postMessage({type:"profiles",profiles:this.profileManager.getProfiles(),currentProfile:this.profileManager.getCurrentProfileId()})}async handleSaveProfile(e,o){try{this.profileManager.saveCurrentProfile(e,o),a.window.showInformationMessage(`\u8D26\u6237 "${e}" \u4FDD\u5B58\u6210\u529F\uFF01`),this.sendProfiles()}catch(t){a.window.showErrorMessage(`\u4FDD\u5B58\u8D26\u6237\u5931\u8D25: ${t}`)}}async handleSwitchProfile(e){let o=this.profileManager.getProfiles().find(r=>r.id===e);if(!o)return;await a.window.showWarningMessage(`\u786E\u5B9A\u8981\u5207\u6362\u5230\u8D26\u6237 "${o.name}" \u5417\uFF1F
-\u5207\u6362\u540E\u9700\u8981\u91CD\u542F Windsurf \u624D\u80FD\u751F\u6548\u3002`,"\u786E\u5B9A\u5207\u6362","\u53D6\u6D88")==="\u786E\u5B9A\u5207\u6362"&&this.profileManager.switchProfile(e)&&(await a.window.showInformationMessage(`\u5DF2\u5207\u6362\u5230\u8D26\u6237 "${o.name}"\uFF0C\u9700\u8981\u91CD\u542F Windsurf \u624D\u80FD\u751F\u6548\u3002`,"\u7ACB\u5373\u91CD\u542F","\u7A0D\u540E\u91CD\u542F")==="\u7ACB\u5373\u91CD\u542F"&&a.commands.executeCommand("workbench.action.reloadWindow"),this.sendProfiles())}async handleDeleteProfile(e){let o=this.profileManager.getProfiles().find(r=>r.id===e);if(!o)return;await a.window.showWarningMessage(`\u786E\u5B9A\u8981\u5220\u9664\u8D26\u6237 "${o.name}" \u5417\uFF1F\u6B64\u64CD\u4F5C\u4E0D\u53EF\u64A4\u9500\u3002`,"\u786E\u5B9A\u5220\u9664","\u53D6\u6D88")==="\u786E\u5B9A\u5220\u9664"&&this.profileManager.deleteProfile(e)&&(a.window.showInformationMessage(`\u8D26\u6237 "${o.name}" \u5DF2\u5220\u9664\u3002`),this.sendProfiles())}async handleImportProfile(){let e=await a.window.showOpenDialog({canSelectFiles:!1,canSelectFolders:!0,canSelectMany:!1,title:"\u9009\u62E9\u8981\u5BFC\u5165\u7684\u8D26\u6237\u914D\u7F6E\u76EE\u5F55"});if(e&&e.length>0){let o=this.profileManager.importProfile(e[0].fsPath);o?(a.window.showInformationMessage(`\u8D26\u6237 "${o.name}" \u5BFC\u5165\u6210\u529F\uFF01`),this.sendProfiles()):a.window.showErrorMessage("\u5BFC\u5165\u8D26\u6237\u5931\u8D25")}}async handleExportProfile(e){let o=this.profileManager.getProfiles().find(r=>r.id===e);if(!o)return;let t=await a.window.showOpenDialog({canSelectFiles:!1,canSelectFolders:!0,canSelectMany:!1,title:"\u9009\u62E9\u5BFC\u51FA\u76EE\u6807\u76EE\u5F55"});if(t&&t.length>0){let r=n.join(t[0].fsPath,`windsurf-profile-${o.name}`);this.profileManager.exportProfile(e,r)?a.window.showInformationMessage(`\u8D26\u6237\u5DF2\u5BFC\u51FA\u5230: ${r}`):a.window.showErrorMessage("\u5BFC\u51FA\u8D26\u6237\u5931\u8D25")}}async handleOpenProfilesDir(){let e=n.join(m,"profiles");g(e);let o=a.Uri.file(e);await a.commands.executeCommand("revealFileInOS",o),a.window.showInformationMessage(`\u914D\u7F6E\u76EE\u5F55: ${e}`)}refresh(){this.sendProfiles()}getHtmlContent(){return`<!DOCTYPE html>
+"use strict";var z=Object.create;var y=Object.defineProperty;var E=Object.getOwnPropertyDescriptor;var $=Object.getOwnPropertyNames;var _=Object.getPrototypeOf,L=Object.prototype.hasOwnProperty;var B=(s,e)=>{for(var o in e)y(s,o,{get:e[o],enumerable:!0})},C=(s,e,o,i)=>{if(e&&typeof e=="object"||typeof e=="function")for(let r of $(e))!L.call(s,r)&&r!==o&&y(s,r,{get:()=>e[r],enumerable:!(i=E(e,r))||i.enumerable});return s};var P=(s,e,o)=>(o=s!=null?z(_(s)):{},C(e||!s||!s.__esModule?y(o,"default",{value:s,enumerable:!0}):o,s)),N=s=>C(y({},"__esModule",{value:!0}),s);var A={};B(A,{activate:()=>O,deactivate:()=>T});module.exports=N(A);var a=P(require("vscode")),t=P(require("fs")),n=P(require("path")),w=P(require("os")),M=n.join(w.homedir(),"Library","Application Support","Windsurf"),b=n.join(M,"User","globalStorage"),m=n.join(w.homedir(),".windsurf-switcher-free"),S=n.join(m,"profiles.json");function h(s){t.existsSync(s)||t.mkdirSync(s,{recursive:!0})}function W(){return"xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g,s=>{let e=Math.random()*16|0;return(s==="x"?e:e&3|8).toString(16)})}function k(){return new Date().toLocaleString("zh-CN",{year:"numeric",month:"2-digit",day:"2-digit",hour:"2-digit",minute:"2-digit",second:"2-digit"})}function u(s,e,o=[]){h(e);let i=t.readdirSync(s,{withFileTypes:!0});for(let r of i){if(o.some(l=>l.startsWith("*.")?r.name.endsWith(l.slice(1)):l.endsWith("*")?r.name.startsWith(l.slice(0,-1)):r.name===l))continue;let f=n.join(s,r.name),c=n.join(e,r.name);r.isDirectory()?u(f,c,o):t.copyFileSync(f,c)}}function D(s){t.existsSync(s)&&t.rmSync(s,{recursive:!0,force:!0})}var F=class{constructor(){this.storageData=this.loadStorage()}loadStorage(){if(h(m),t.existsSync(S))try{let e=t.readFileSync(S,"utf-8");return JSON.parse(e)}catch(e){console.error("\u52A0\u8F7D\u914D\u7F6E\u6587\u4EF6\u5931\u8D25:",e)}return{profiles:[],currentProfile:""}}saveStorage(){h(m),t.writeFileSync(S,JSON.stringify(this.storageData,null,2))}getProfiles(){return this.storageData.profiles}getCurrentProfileId(){return this.storageData.currentProfile}saveCurrentProfile(e,o){let i=W(),r=n.join(m,"profiles",i);h(r);let d=n.join(r,"globalStorage");t.existsSync(b)&&u(b,d,["*.backup.*","ms-*"]);let f=["Cookies","Cookies-journal","Local Storage","Session Storage","Network Persistent State"];for(let v of f){let g=n.join(M,v),x=n.join(r,v);t.existsSync(g)&&(t.statSync(g).isDirectory()?u(g,x):t.copyFileSync(g,x))}let c=n.join(w.homedir(),".codeium","windsurf"),l=n.join(r,"codeium");if(t.existsSync(c)){h(l);let v=["installation_id","user_settings.pb"];for(let g of v){let x=n.join(c,g);t.existsSync(x)&&t.copyFileSync(x,n.join(l,g))}}let p={id:i,name:e,email:o,savedAt:k(),profilePath:r},j=n.join(r,"profile_meta.json");return t.writeFileSync(j,JSON.stringify({name:e,email:o,saved_at:k()},null,2)),this.storageData.profiles.push(p),this.storageData.currentProfile=i,this.saveStorage(),p}importProfile(e){let o=n.join(e,"profile_meta.json"),i="\u5BFC\u5165\u7684\u8D26\u6237",r="unknown@example.com";if(t.existsSync(o))try{let l=JSON.parse(t.readFileSync(o,"utf-8"));i=l.name||i,r=l.email||r}catch(l){console.error("\u8BFB\u53D6 profile_meta.json \u5931\u8D25:",l)}let d=W(),f=n.join(m,"profiles",d);u(e,f);let c={id:d,name:i,email:r,savedAt:k(),profilePath:f};return this.storageData.profiles.push(c),this.saveStorage(),c}switchProfile(e){let o=this.storageData.profiles.find(i=>i.id===e);if(!o)return!1;if(!t.existsSync(o.profilePath))return a.window.showErrorMessage(`\u8D26\u6237\u914D\u7F6E\u76EE\u5F55\u4E0D\u5B58\u5728: ${o.profilePath}`),!1;try{let i=n.join(o.profilePath,"globalStorage");t.existsSync(i)&&(t.existsSync(b)&&D(b),u(i,b));let r=["Cookies","Cookies-journal","Local Storage","Session Storage","Network Persistent State"];for(let c of r){let l=n.join(o.profilePath,c),p=n.join(M,c);t.existsSync(l)&&(t.existsSync(p)&&(t.statSync(p).isDirectory()?D(p):t.unlinkSync(p)),t.statSync(l).isDirectory()?u(l,p):t.copyFileSync(l,p))}let d=n.join(o.profilePath,"codeium"),f=n.join(w.homedir(),".codeium","windsurf");if(t.existsSync(d)){h(f);let c=t.readdirSync(d);for(let l of c)t.copyFileSync(n.join(d,l),n.join(f,l))}return this.storageData.currentProfile=e,this.saveStorage(),!0}catch(i){return console.error("\u5207\u6362\u8D26\u6237\u5931\u8D25:",i),a.window.showErrorMessage(`\u5207\u6362\u8D26\u6237\u5931\u8D25: ${i}`),!1}}deleteProfile(e){let o=this.storageData.profiles.findIndex(r=>r.id===e);if(o===-1)return!1;let i=this.storageData.profiles[o];return D(i.profilePath),this.storageData.profiles.splice(o,1),this.storageData.currentProfile===e&&(this.storageData.currentProfile=""),this.saveStorage(),!0}exportProfile(e,o){let i=this.storageData.profiles.find(r=>r.id===e);if(!i)return!1;try{return u(i.profilePath,o),!0}catch(r){return console.error("\u5BFC\u51FA\u8D26\u6237\u5931\u8D25:",r),!1}}},I=class{constructor(e,o){this.extensionUri=e;this.profileManager=o}resolveWebviewView(e,o,i){this._view=e,e.webview.options={enableScripts:!0,localResourceRoots:[this.extensionUri]},e.webview.html=this.getHtmlContent(),e.webview.onDidReceiveMessage(async r=>{switch(r.type){case"getProfiles":this.sendProfiles();break;case"saveProfile":await this.handleSaveProfile(r.name,r.email);break;case"switchProfile":await this.handleSwitchProfile(r.profileId);break;case"deleteProfile":await this.handleDeleteProfile(r.profileId);break;case"importProfile":await this.handleImportProfile();break;case"exportProfile":await this.handleExportProfile(r.profileId);break;case"openProfilesDir":await this.handleOpenProfilesDir();break}})}sendProfiles(){this._view&&this._view.webview.postMessage({type:"profiles",profiles:this.profileManager.getProfiles(),currentProfile:this.profileManager.getCurrentProfileId()})}async handleSaveProfile(e,o){try{this.profileManager.saveCurrentProfile(e,o),a.window.showInformationMessage(`\u8D26\u6237 "${e}" \u4FDD\u5B58\u6210\u529F\uFF01`),this.sendProfiles()}catch(i){a.window.showErrorMessage(`\u4FDD\u5B58\u8D26\u6237\u5931\u8D25: ${i}`)}}async handleSwitchProfile(e){let o=this.profileManager.getProfiles().find(r=>r.id===e);if(!o)return;await a.window.showWarningMessage(`\u786E\u5B9A\u8981\u5207\u6362\u5230\u8D26\u6237 "${o.name}" \u5417\uFF1F
+\u5207\u6362\u540E\u9700\u8981\u91CD\u542F Windsurf \u624D\u80FD\u751F\u6548\u3002`,"\u786E\u5B9A\u5207\u6362","\u53D6\u6D88")==="\u786E\u5B9A\u5207\u6362"&&this.profileManager.switchProfile(e)&&(await a.window.showInformationMessage(`\u5DF2\u5207\u6362\u5230\u8D26\u6237 "${o.name}"\uFF0C\u9700\u8981\u91CD\u542F Windsurf \u624D\u80FD\u751F\u6548\u3002`,"\u7ACB\u5373\u91CD\u542F","\u7A0D\u540E\u91CD\u542F")==="\u7ACB\u5373\u91CD\u542F"&&a.commands.executeCommand("workbench.action.reloadWindow"),this.sendProfiles())}async handleDeleteProfile(e){let o=this.profileManager.getProfiles().find(r=>r.id===e);if(!o)return;await a.window.showWarningMessage(`\u786E\u5B9A\u8981\u5220\u9664\u8D26\u6237 "${o.name}" \u5417\uFF1F\u6B64\u64CD\u4F5C\u4E0D\u53EF\u64A4\u9500\u3002`,"\u786E\u5B9A\u5220\u9664","\u53D6\u6D88")==="\u786E\u5B9A\u5220\u9664"&&this.profileManager.deleteProfile(e)&&(a.window.showInformationMessage(`\u8D26\u6237 "${o.name}" \u5DF2\u5220\u9664\u3002`),this.sendProfiles())}async handleImportProfile(){let e=await a.window.showOpenDialog({canSelectFiles:!1,canSelectFolders:!0,canSelectMany:!1,title:"\u9009\u62E9\u8981\u5BFC\u5165\u7684\u8D26\u6237\u914D\u7F6E\u76EE\u5F55"});if(e&&e.length>0){let o=this.profileManager.importProfile(e[0].fsPath);o?(a.window.showInformationMessage(`\u8D26\u6237 "${o.name}" \u5BFC\u5165\u6210\u529F\uFF01`),this.sendProfiles()):a.window.showErrorMessage("\u5BFC\u5165\u8D26\u6237\u5931\u8D25")}}async handleExportProfile(e){let o=this.profileManager.getProfiles().find(r=>r.id===e);if(!o)return;let i=await a.window.showOpenDialog({canSelectFiles:!1,canSelectFolders:!0,canSelectMany:!1,title:"\u9009\u62E9\u5BFC\u51FA\u76EE\u6807\u76EE\u5F55"});if(i&&i.length>0){let r=n.join(i[0].fsPath,`windsurf-profile-${o.name}`);this.profileManager.exportProfile(e,r)?a.window.showInformationMessage(`\u8D26\u6237\u5DF2\u5BFC\u51FA\u5230: ${r}`):a.window.showErrorMessage("\u5BFC\u51FA\u8D26\u6237\u5931\u8D25")}}async handleOpenProfilesDir(){let e=n.join(m,"profiles");h(e);let o=a.Uri.file(e);await a.commands.executeCommand("revealFileInOS",o),a.window.showInformationMessage(`\u914D\u7F6E\u76EE\u5F55: ${e}`)}refresh(){this.sendProfiles()}getHtmlContent(){return`<!DOCTYPE html>
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
@@ -7,7 +7,7 @@
     <title>Windsurf \u8D26\u6237\u5207\u6362</title>
     <style>
         /* ================================================================ */
-        /* \u57FA\u7840\u6837\u5F0F                                                          */
+        /* \u57FA\u7840\u6837\u5F0F - \u73B0\u4EE3\u5316\u8BBE\u8BA1                                              */
         /* ================================================================ */
         * {
             margin: 0;
@@ -16,126 +16,201 @@
         }
         
         body {
-            font-family: var(--vscode-font-family);
-            font-size: var(--vscode-font-size);
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            font-size: 13px;
             color: var(--vscode-foreground);
-            background-color: var(--vscode-sideBar-background);
-            padding: 12px;
+            background: linear-gradient(180deg, var(--vscode-sideBar-background) 0%, var(--vscode-editor-background) 100%);
+            padding: 16px;
+            min-height: 100vh;
         }
         
         /* ================================================================ */
-        /* \u6807\u9898\u533A\u57DF                                                          */
+        /* \u5934\u90E8\u533A\u57DF - \u6E10\u53D8\u80CC\u666F                                                */
         /* ================================================================ */
         .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 12px;
+            padding: 20px;
             margin-bottom: 16px;
-            padding-bottom: 12px;
-            border-bottom: 1px solid var(--vscode-panel-border);
+            text-align: center;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
         }
         
         .header h2 {
-            font-size: 14px;
-            font-weight: 600;
-            color: var(--vscode-foreground);
-            margin-bottom: 4px;
+            font-size: 18px;
+            font-weight: 700;
+            color: #ffffff;
+            margin-bottom: 6px;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.2);
         }
         
         .header p {
-            font-size: 11px;
-            color: var(--vscode-descriptionForeground);
+            font-size: 12px;
+            color: rgba(255,255,255,0.9);
         }
         
-        /* ================================================================ */
-        /* \u64CD\u4F5C\u6309\u94AE\u533A\u57DF                                                       */
-        /* ================================================================ */
-        .actions {
+        .header .feature-tags {
             display: flex;
+            justify-content: center;
             gap: 8px;
-            margin-bottom: 16px;
+            margin-top: 10px;
             flex-wrap: wrap;
         }
         
+        .header .tag {
+            background: rgba(255,255,255,0.2);
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 10px;
+            color: #fff;
+            backdrop-filter: blur(10px);
+        }
+        
+        /* ================================================================ */
+        /* \u64CD\u4F5C\u6309\u94AE\u533A\u57DF - \u5361\u7247\u5F0F\u5E03\u5C40                                          */
+        /* ================================================================ */
+        .actions {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-bottom: 16px;
+        }
+        
         .btn {
-            padding: 6px 12px;
+            padding: 12px 16px;
             font-size: 12px;
+            font-weight: 600;
             border: none;
-            border-radius: 4px;
+            border-radius: 10px;
             cursor: pointer;
-            transition: all 0.2s;
+            transition: all 0.3s ease;
             display: flex;
             align-items: center;
-            gap: 4px;
+            justify-content: center;
+            gap: 6px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        
+        .btn:active {
+            transform: scale(0.98);
         }
         
         .btn-primary {
-            background-color: var(--vscode-button-background);
-            color: var(--vscode-button-foreground);
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #ffffff;
         }
         
         .btn-primary:hover {
-            background-color: var(--vscode-button-hoverBackground);
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+            transform: translateY(-2px);
         }
         
         .btn-secondary {
-            background-color: var(--vscode-button-secondaryBackground);
-            color: var(--vscode-button-secondaryForeground);
+            background: var(--vscode-editor-background);
+            color: var(--vscode-foreground);
+            border: 1px solid var(--vscode-panel-border);
         }
         
         .btn-secondary:hover {
-            background-color: var(--vscode-button-secondaryHoverBackground);
+            background: var(--vscode-list-hoverBackground);
+            border-color: #667eea;
+        }
+        
+        .btn-success {
+            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+            color: #ffffff;
         }
         
         .btn-danger {
-            background-color: #c42b1c;
-            color: white;
+            background: linear-gradient(135deg, #eb3349 0%, #f45c43 100%);
+            color: #ffffff;
         }
         
         .btn-danger:hover {
-            background-color: #a52714;
+            box-shadow: 0 4px 15px rgba(235, 51, 73, 0.4);
+        }
+        
+        .btn-full {
+            grid-column: span 2;
         }
         
         /* ================================================================ */
-        /* \u8D26\u6237\u5217\u8868                                                          */
+        /* \u8D26\u6237\u5217\u8868 - \u5361\u7247\u8BBE\u8BA1                                                */
         /* ================================================================ */
+        .section-title {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--vscode-descriptionForeground);
+            margin-bottom: 10px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
         .profile-list {
             display: flex;
             flex-direction: column;
-            gap: 8px;
+            gap: 10px;
         }
         
         .profile-item {
-            background-color: var(--vscode-editor-background);
+            background: var(--vscode-editor-background);
             border: 1px solid var(--vscode-panel-border);
-            border-radius: 6px;
-            padding: 12px;
-            transition: all 0.2s;
+            border-radius: 12px;
+            padding: 14px;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .profile-item::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 4px;
+            height: 100%;
+            background: linear-gradient(180deg, #667eea 0%, #764ba2 100%);
+            opacity: 0;
+            transition: opacity 0.3s;
         }
         
         .profile-item:hover {
-            border-color: var(--vscode-focusBorder);
+            border-color: #667eea;
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.15);
+            transform: translateX(4px);
+        }
+        
+        .profile-item:hover::before {
+            opacity: 1;
         }
         
         .profile-item.active {
-            border-color: var(--vscode-button-background);
-            background-color: var(--vscode-list-activeSelectionBackground);
+            border-color: #667eea;
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
+        }
+        
+        .profile-item.active::before {
+            opacity: 1;
         }
         
         .profile-header {
             display: flex;
             justify-content: space-between;
             align-items: flex-start;
-            margin-bottom: 8px;
+            margin-bottom: 10px;
         }
         
         .profile-info h3 {
-            font-size: 13px;
+            font-size: 14px;
             font-weight: 600;
             color: var(--vscode-foreground);
-            margin-bottom: 2px;
+            margin-bottom: 4px;
         }
         
         .profile-info .email {
             font-size: 11px;
-            color: var(--vscode-descriptionForeground);
+            color: #667eea;
+            font-weight: 500;
         }
         
         .profile-info .time {
@@ -146,102 +221,202 @@
         
         .profile-badge {
             font-size: 10px;
-            padding: 2px 6px;
-            border-radius: 10px;
-            background-color: var(--vscode-button-background);
-            color: var(--vscode-button-foreground);
+            padding: 4px 10px;
+            border-radius: 20px;
+            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+            color: #ffffff;
+            font-weight: 600;
         }
         
         .profile-actions {
             display: flex;
-            gap: 6px;
-            margin-top: 8px;
+            gap: 8px;
+            margin-top: 10px;
         }
         
         .profile-actions .btn {
-            padding: 4px 8px;
+            padding: 8px 14px;
             font-size: 11px;
+            flex: 1;
         }
         
         /* ================================================================ */
-        /* \u4FDD\u5B58\u8868\u5355                                                          */
+        /* \u4FDD\u5B58\u8868\u5355 - \u5F39\u51FA\u5F0F\u8BBE\u8BA1                                              */
         /* ================================================================ */
         .save-form {
-            background-color: var(--vscode-editor-background);
-            border: 1px solid var(--vscode-panel-border);
-            border-radius: 6px;
-            padding: 12px;
+            background: var(--vscode-editor-background);
+            border: 2px solid #667eea;
+            border-radius: 12px;
+            padding: 16px;
             margin-bottom: 16px;
             display: none;
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.2);
         }
         
         .save-form.show {
             display: block;
+            animation: slideDown 0.3s ease;
+        }
+        
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
         
         .save-form h3 {
-            font-size: 13px;
+            font-size: 14px;
             font-weight: 600;
-            margin-bottom: 12px;
+            margin-bottom: 14px;
+            color: #667eea;
         }
         
         .form-group {
-            margin-bottom: 10px;
+            margin-bottom: 12px;
         }
         
         .form-group label {
             display: block;
             font-size: 11px;
+            font-weight: 600;
             color: var(--vscode-descriptionForeground);
-            margin-bottom: 4px;
+            margin-bottom: 6px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
         
         .form-group input {
             width: 100%;
-            padding: 6px 8px;
-            font-size: 12px;
-            border: 1px solid var(--vscode-input-border);
-            border-radius: 4px;
-            background-color: var(--vscode-input-background);
+            padding: 10px 12px;
+            font-size: 13px;
+            border: 2px solid var(--vscode-input-border);
+            border-radius: 8px;
+            background: var(--vscode-input-background);
             color: var(--vscode-input-foreground);
+            transition: all 0.3s ease;
         }
         
         .form-group input:focus {
             outline: none;
-            border-color: var(--vscode-focusBorder);
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.2);
         }
         
         .form-actions {
             display: flex;
-            gap: 8px;
+            gap: 10px;
             justify-content: flex-end;
+            margin-top: 14px;
         }
         
         /* ================================================================ */
-        /* \u7A7A\u72B6\u6001                                                            */
+        /* \u7A7A\u72B6\u6001 - \u5F15\u5BFC\u8BBE\u8BA1                                                  */
         /* ================================================================ */
         .empty-state {
             text-align: center;
-            padding: 24px;
+            padding: 30px 20px;
             color: var(--vscode-descriptionForeground);
+        }
+        
+        .empty-state .icon {
+            font-size: 40px;
+            margin-bottom: 12px;
+        }
+        
+        .empty-state h4 {
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 6px;
+            color: var(--vscode-foreground);
         }
         
         .empty-state p {
             font-size: 12px;
-            margin-bottom: 12px;
+            line-height: 1.5;
         }
         
         /* ================================================================ */
         /* \u63D0\u793A\u4FE1\u606F                                                          */
         /* ================================================================ */
         .tip {
-            font-size: 10px;
+            font-size: 11px;
             color: var(--vscode-descriptionForeground);
             margin-top: 16px;
-            padding: 8px;
-            background-color: var(--vscode-textBlockQuote-background);
-            border-radius: 4px;
-            border-left: 3px solid var(--vscode-textLink-foreground);
+            padding: 12px;
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
+            border-radius: 10px;
+            border-left: 4px solid #667eea;
+        }
+        
+        /* ================================================================ */
+        /* \u4F5C\u8005\u6C34\u5370\u533A\u57DF                                                       */
+        /* ================================================================ */
+        .author-watermark {
+            margin-top: 20px;
+            padding: 16px;
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.05) 0%, rgba(118, 75, 162, 0.05) 100%);
+            border-radius: 12px;
+            border: 1px dashed var(--vscode-panel-border);
+            text-align: center;
+        }
+        
+        .author-watermark .author-title {
+            font-size: 11px;
+            color: var(--vscode-descriptionForeground);
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        .author-watermark .author-name {
+            font-size: 14px;
+            font-weight: 700;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 8px;
+        }
+        
+        .author-watermark .author-links {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            font-size: 10px;
+            color: var(--vscode-descriptionForeground);
+        }
+        
+        .author-watermark .author-links a {
+            color: #667eea;
+            text-decoration: none;
+        }
+        
+        .author-watermark .author-links a:hover {
+            text-decoration: underline;
+        }
+        
+        .author-watermark .github-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            margin-top: 8px;
+            padding: 6px 12px;
+            background: var(--vscode-editor-background);
+            border-radius: 20px;
+            font-size: 11px;
+            color: var(--vscode-foreground);
+            text-decoration: none;
+            transition: all 0.3s;
+        }
+        
+        .author-watermark .github-link:hover {
+            background: #667eea;
+            color: #fff;
         }
     </style>
 </head>
@@ -250,22 +425,27 @@
     <!-- \u5934\u90E8\u533A\u57DF                                                          -->
     <!-- ================================================================ -->
     <div class="header">
-        <h2>\u{1F504} Windsurf \u8D26\u6237\u5207\u6362</h2>
-        <p>\u65E0\u5FC3\u8DF3\u68C0\u6D4B \xB7 \u65E0\u81EA\u52A8\u4E0B\u7EBF \xB7 \u5B8C\u5168\u672C\u5730\u5316</p>
+        <h2>\u{1F504} Windsurf \u8D26\u6237\u5207\u6362\u5668</h2>
+        <p>\u65E0\u9650\u7545\u4EAB \xB7 \u81EA\u7531\u5207\u6362 \xB7 \u5B8C\u5168\u514D\u8D39</p>
+        <div class="feature-tags">
+            <span class="tag">\u2728 \u65E0\u5FC3\u8DF3\u68C0\u6D4B</span>
+            <span class="tag">\u{1F512} \u65E0\u81EA\u52A8\u4E0B\u7EBF</span>
+            <span class="tag">\u{1F4BE} \u672C\u5730\u5B58\u50A8</span>
+        </div>
     </div>
     
     <!-- ================================================================ -->
     <!-- \u64CD\u4F5C\u6309\u94AE                                                          -->
     <!-- ================================================================ -->
     <div class="actions">
-        <button class="btn btn-primary" onclick="showSaveForm()">
+        <button class="btn btn-primary btn-full" onclick="showSaveForm()">
             \u{1F4BE} \u4FDD\u5B58\u5F53\u524D\u8D26\u6237
         </button>
         <button class="btn btn-secondary" onclick="importProfile()">
-            \u{1F4E5} \u5BFC\u5165\u914D\u7F6E
+            \u{1F4E5} \u5BFC\u5165
         </button>
         <button class="btn btn-secondary" onclick="openProfilesDir()">
-            \u{1F4C2} \u6253\u5F00\u76EE\u5F55
+            \u{1F4C2} \u76EE\u5F55
         </button>
     </div>
     
@@ -273,28 +453,30 @@
     <!-- \u4FDD\u5B58\u8868\u5355                                                          -->
     <!-- ================================================================ -->
     <div class="save-form" id="saveForm">
-        <h3>\u4FDD\u5B58\u5F53\u524D\u8D26\u6237</h3>
+        <h3>\u{1F4BE} \u4FDD\u5B58\u5F53\u524D\u8D26\u6237</h3>
         <div class="form-group">
-            <label for="profileName">\u8D26\u6237\u540D\u79F0</label>
-            <input type="text" id="profileName" placeholder="\u4F8B\u5982\uFF1A\u5DE5\u4F5C\u8D26\u6237">
+            <label>\u8D26\u6237\u540D\u79F0</label>
+            <input type="text" id="profileName" placeholder="\u8F93\u5165\u4E00\u4E2A\u4FBF\u4E8E\u8BC6\u522B\u7684\u540D\u79F0">
         </div>
         <div class="form-group">
-            <label for="profileEmail">\u90AE\u7BB1</label>
-            <input type="email" id="profileEmail" placeholder="\u4F8B\u5982\uFF1Aexample@email.com">
+            <label>\u90AE\u7BB1\u5730\u5740</label>
+            <input type="email" id="profileEmail" placeholder="your@email.com">
         </div>
         <div class="form-actions">
             <button class="btn btn-secondary" onclick="hideSaveForm()">\u53D6\u6D88</button>
-            <button class="btn btn-primary" onclick="saveProfile()">\u4FDD\u5B58</button>
+            <button class="btn btn-primary" onclick="saveProfile()">\u786E\u8BA4\u4FDD\u5B58</button>
         </div>
     </div>
     
     <!-- ================================================================ -->
     <!-- \u8D26\u6237\u5217\u8868                                                          -->
     <!-- ================================================================ -->
+    <div class="section-title">\u{1F4CB} \u5DF2\u4FDD\u5B58\u7684\u8D26\u6237</div>
     <div class="profile-list" id="profileList">
         <div class="empty-state">
-            <p>\u6682\u65E0\u4FDD\u5B58\u7684\u8D26\u6237</p>
-            <p>\u70B9\u51FB\u300C\u4FDD\u5B58\u5F53\u524D\u8D26\u6237\u300D\u5F00\u59CB\u4F7F\u7528</p>
+            <div class="icon">\u{1F4ED}</div>
+            <h4>\u6682\u65E0\u4FDD\u5B58\u7684\u8D26\u6237</h4>
+            <p>\u70B9\u51FB\u4E0A\u65B9\u300C\u4FDD\u5B58\u5F53\u524D\u8D26\u6237\u300D\u6309\u94AE<br>\u5F00\u59CB\u7BA1\u7406\u4F60\u7684 Windsurf \u8D26\u6237</p>
         </div>
     </div>
     
@@ -302,7 +484,23 @@
     <!-- \u63D0\u793A\u4FE1\u606F                                                          -->
     <!-- ================================================================ -->
     <div class="tip">
-        \u{1F4A1} \u63D0\u793A\uFF1A\u5207\u6362\u8D26\u6237\u540E\u9700\u8981\u91CD\u542F Windsurf \u624D\u80FD\u751F\u6548
+        \u{1F4A1} <strong>\u63D0\u793A\uFF1A</strong>\u5207\u6362\u8D26\u6237\u540E\u9700\u8981\u91CD\u542F Windsurf \u624D\u80FD\u751F\u6548
+    </div>
+    
+    <!-- ================================================================ -->
+    <!-- \u4F5C\u8005\u6C34\u5370                                                          -->
+    <!-- ================================================================ -->
+    <div class="author-watermark">
+        <div class="author-title">\u2728 \u5F00\u53D1\u8005 \u2728</div>
+        <div class="author-name">\u4E07\u80FD\u7A0B\u5E8F\u5458\uFF1A\u4F20\u5EB7KK</div>
+        <div class="author-links">
+            <span>\u{1F4F1} \u5FAE\u4FE1\uFF1A1837620622</span>
+            <span>\u{1F4E7} \u90AE\u7BB1\uFF1A2040168455@qq.com</span>
+            <span>\u{1F3AC} \u54B8\u9C7C/B\u7AD9\uFF1A\u4E07\u80FD\u7A0B\u5E8F\u5458</span>
+        </div>
+        <a class="github-link" href="https://github.com/1837620622" target="_blank">
+            \u2B50 GitHub: github.com/1837620622
+        </a>
     </div>
     
     <!-- ================================================================ -->
@@ -346,8 +544,9 @@
             if (profiles.length === 0) {
                 container.innerHTML = \`
                     <div class="empty-state">
-                        <p>\u6682\u65E0\u4FDD\u5B58\u7684\u8D26\u6237</p>
-                        <p>\u70B9\u51FB\u300C\u4FDD\u5B58\u5F53\u524D\u8D26\u6237\u300D\u5F00\u59CB\u4F7F\u7528</p>
+                        <div class="icon">\u{1F4ED}</div>
+                        <h4>\u6682\u65E0\u4FDD\u5B58\u7684\u8D26\u6237</h4>
+                        <p>\u70B9\u51FB\u4E0A\u65B9\u300C\u4FDD\u5B58\u5F53\u524D\u8D26\u6237\u300D\u6309\u94AE<br>\u5F00\u59CB\u7BA1\u7406\u4F60\u7684 Windsurf \u8D26\u6237</p>
                     </div>
                 \`;
                 return;
@@ -357,19 +556,19 @@
                 <div class="profile-item \${profile.id === currentProfileId ? 'active' : ''}">
                     <div class="profile-header">
                         <div class="profile-info">
-                            <h3>\${escapeHtml(profile.name)}</h3>
-                            <div class="email">\${escapeHtml(profile.email)}</div>
-                            <div class="time">\u4FDD\u5B58\u4E8E: \${escapeHtml(profile.savedAt)}</div>
+                            <h3>\u{1F464} \${escapeHtml(profile.name)}</h3>
+                            <div class="email">\u{1F4E7} \${escapeHtml(profile.email)}</div>
+                            <div class="time">\u{1F550} \${escapeHtml(profile.savedAt)}</div>
                         </div>
-                        \${profile.id === currentProfileId ? '<span class="profile-badge">\u5F53\u524D</span>' : ''}
+                        \${profile.id === currentProfileId ? '<span class="profile-badge">\u2713 \u5F53\u524D</span>' : ''}
                     </div>
                     <div class="profile-actions">
                         \${profile.id !== currentProfileId ? 
-                            \`<button class="btn btn-primary" onclick="switchProfile('\${profile.id}')">\u5207\u6362</button>\` : 
-                            ''
+                            \`<button class="btn btn-success" onclick="switchProfile('\${profile.id}')">\u{1F504} \u5207\u6362</button>\` : 
+                            '<button class="btn btn-secondary" disabled>\u2713 \u5DF2\u6FC0\u6D3B</button>'
                         }
-                        <button class="btn btn-secondary" onclick="exportProfile('\${profile.id}')">\u5BFC\u51FA</button>
-                        <button class="btn btn-danger" onclick="deleteProfile('\${profile.id}')">\u5220\u9664</button>
+                        <button class="btn btn-secondary" onclick="exportProfile('\${profile.id}')">\u{1F4E4} \u5BFC\u51FA</button>
+                        <button class="btn btn-danger" onclick="deleteProfile('\${profile.id}')">\u{1F5D1}\uFE0F \u5220\u9664</button>
                     </div>
                 </div>
             \`).join('');
@@ -463,4 +662,4 @@
         }
     </script>
 </body>
-</html>`}};function O(s){console.log("Windsurf Switcher Free \u5DF2\u6FC0\u6D3B");let e=new F,o=new I(s.extensionUri,e);s.subscriptions.push(a.window.registerWebviewViewProvider("windsurfSwitcherFree.view",o)),s.subscriptions.push(a.commands.registerCommand("windsurfSwitcherFree.refresh",()=>{o.refresh()})),s.subscriptions.push(a.commands.registerCommand("windsurfSwitcherFree.importProfile",async()=>{let t=await a.window.showOpenDialog({canSelectFiles:!1,canSelectFolders:!0,canSelectMany:!1,title:"\u9009\u62E9\u8981\u5BFC\u5165\u7684\u8D26\u6237\u914D\u7F6E\u76EE\u5F55"});if(t&&t.length>0){let r=e.importProfile(t[0].fsPath);r&&(a.window.showInformationMessage(`\u8D26\u6237 "${r.name}" \u5BFC\u5165\u6210\u529F\uFF01`),o.refresh())}})),a.window.showInformationMessage("Windsurf Switcher Free \u5DF2\u542F\u52A8 - \u65E0\u5FC3\u8DF3\u68C0\u6D4B\uFF0C\u65E0\u81EA\u52A8\u4E0B\u7EBF")}function T(){console.log("Windsurf Switcher Free \u5DF2\u505C\u7528")}0&&(module.exports={activate,deactivate});
+</html>`}};function O(s){console.log("Windsurf Switcher Free \u5DF2\u6FC0\u6D3B");let e=new F,o=new I(s.extensionUri,e);s.subscriptions.push(a.window.registerWebviewViewProvider("windsurfSwitcherFree.view",o)),s.subscriptions.push(a.commands.registerCommand("windsurfSwitcherFree.refresh",()=>{o.refresh()})),s.subscriptions.push(a.commands.registerCommand("windsurfSwitcherFree.importProfile",async()=>{let i=await a.window.showOpenDialog({canSelectFiles:!1,canSelectFolders:!0,canSelectMany:!1,title:"\u9009\u62E9\u8981\u5BFC\u5165\u7684\u8D26\u6237\u914D\u7F6E\u76EE\u5F55"});if(i&&i.length>0){let r=e.importProfile(i[0].fsPath);r&&(a.window.showInformationMessage(`\u8D26\u6237 "${r.name}" \u5BFC\u5165\u6210\u529F\uFF01`),o.refresh())}})),a.window.showInformationMessage("Windsurf Switcher Free \u5DF2\u542F\u52A8 - \u65E0\u5FC3\u8DF3\u68C0\u6D4B\uFF0C\u65E0\u81EA\u52A8\u4E0B\u7EBF")}function T(){console.log("Windsurf Switcher Free \u5DF2\u505C\u7528")}0&&(module.exports={activate,deactivate});
