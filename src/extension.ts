@@ -664,14 +664,22 @@ class SidebarProvider implements vscode.WebviewViewProvider {
         if (confirm === '确定切换') {
             const success = this.profileManager.switchProfile(profileId);
             if (success) {
-                const restart = await vscode.window.showInformationMessage(
-                    `已切换到账户 "${profile.name}"，需要重启 Windsurf 才能生效。`,
-                    '立即重启',
-                    '稍后重启'
+                // ★★★ 重要提醒：切换后必须重启 Windsurf 才能生效 ★★★
+                const restart = await vscode.window.showWarningMessage(
+                    `⚠️ 重要提醒：已切换到账户 "${profile.name}"！\n\n` +
+                    `🔄 必须【完全重启】Windsurf 才能生效！\n` +
+                    `（仅重载窗口可能不够，建议完全关闭后重新打开）`,
+                    '立即重启窗口',
+                    '我知道了，稍后手动重启'
                 );
                 
-                if (restart === '立即重启') {
+                if (restart === '立即重启窗口') {
                     vscode.commands.executeCommand('workbench.action.reloadWindow');
+                } else {
+                    // 再次提醒用户
+                    vscode.window.showWarningMessage(
+                        '⚠️ 请记得手动重启 Windsurf，否则切换不会生效！'
+                    );
                 }
                 
                 this.sendProfiles();
