@@ -534,6 +534,10 @@ class SidebarProvider implements vscode.WebviewViewProvider {
                 case 'exportProfile':
                     await this.handleExportProfile(message.profileId);
                     break;
+                    
+                case 'openProfilesDir':
+                    await this.handleOpenProfilesDir();
+                    break;
             }
         });
     }
@@ -668,6 +672,19 @@ class SidebarProvider implements vscode.WebviewViewProvider {
                 vscode.window.showErrorMessage('导出账户失败');
             }
         }
+    }
+
+    /**
+     * 处理打开配置目录
+     */
+    private async handleOpenProfilesDir(): Promise<void> {
+        const profilesDir = path.join(PLUGIN_DATA_PATH, 'profiles');
+        ensureDir(profilesDir);
+        
+        // 使用 vscode 打开目录
+        const uri = vscode.Uri.file(profilesDir);
+        await vscode.commands.executeCommand('revealFileInOS', uri);
+        vscode.window.showInformationMessage(`配置目录: ${profilesDir}`);
     }
 
     /**
@@ -946,6 +963,9 @@ class SidebarProvider implements vscode.WebviewViewProvider {
         <button class="btn btn-secondary" onclick="importProfile()">
             📥 导入配置
         </button>
+        <button class="btn btn-secondary" onclick="openProfilesDir()">
+            📂 打开目录
+        </button>
     </div>
     
     <!-- ================================================================ -->
@@ -1123,6 +1143,13 @@ class SidebarProvider implements vscode.WebviewViewProvider {
                 type: 'exportProfile',
                 profileId: profileId
             });
+        }
+        
+        // ============================================================
+        // 打开配置目录
+        // ============================================================
+        function openProfilesDir() {
+            vscode.postMessage({ type: 'openProfilesDir' });
         }
         
         // ============================================================
