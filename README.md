@@ -1,68 +1,138 @@
-# Windsurf Switcher Free
+<div align="center">
 
-## 简介
+# 🔄 Windsurf Switcher Free
 
-Windsurf 账户切换插件 - **无心跳检测、无自动下线、完全本地化**
+### Windsurf 账户切换插件 - 无限畅享 · 自由切换 · 完全免费
 
-这是一个纯本地的 Windsurf 账户管理工具，所有数据都存储在本地，不会与任何服务器通信。
+[![GitHub stars](https://img.shields.io/github/stars/1837620622/Windsurf-Switcher-Free?style=social)](https://github.com/1837620622/Windsurf-Switcher-Free)
+[![GitHub release](https://img.shields.io/github/v/release/1837620622/Windsurf-Switcher-Free)](https://github.com/1837620622/Windsurf-Switcher-Free/releases)
+[![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 
-## 功能特点
+<img src="media/icon.png" width="128" height="128" alt="icon">
 
-- ✅ **保存账户配置** - 将当前 Windsurf 账户配置保存到本地
-- ✅ **切换账户** - 一键切换不同的 Windsurf 账户
-- ✅ **导入/导出** - 支持账户配置的导入和导出
-- ✅ **无心跳检测** - 不会定时向服务器发送心跳
-- ✅ **无自动下线** - 不会被强制下线
-- ✅ **完全离线** - 所有操作都在本地完成
+**✨ 无心跳检测 · 🔒 无自动下线 · 💾 本地存储**
 
-## 使用方法
+</div>
 
-### Mac 版本
+---
 
-1. 安装插件：在 Windsurf 中按 `Cmd+Shift+P`，输入 `Install from VSIX`，选择 `Windsurf-Switcher-Free.vsix`
-2. 安装后在左侧活动栏会出现「账户切换」图标
-3. 点击图标打开侧边栏，即可进行账户管理
+## 📖 简介
 
-### Windows 版本
+这是一个纯本地的 Windsurf 账户管理工具，所有数据都存储在本地，不会与任何服务器通信。支持多账户保存、一键切换、配置导入导出等功能。
 
-1. 安装插件：在 Windsurf 中按 `Ctrl+Shift+P`，输入 `Install from VSIX`，选择 `Windsurf-Switcher-Free.vsix`
-2. 安装后在左侧活动栏会出现「账户切换」图标
-3. 点击图标打开侧边栏，即可进行账户管理
+## ✨ 功能特点
 
-## 操作说明
+| 功能 | 说明 |
+|:---:|:---|
+| 💾 **保存账户** | 将当前 Windsurf 账户配置完整备份到本地 |
+| 🔄 **一键切换** | 在不同账户之间快速切换 |
+| 📥 **导入导出** | 支持账户配置的导入和导出，方便迁移 |
+| 📂 **打开目录** | 一键打开配置存储目录，便于管理 |
+| 🚫 **无心跳** | 不会定时向服务器发送心跳检测 |
+| 🔒 **不下线** | 不会被强制下线 |
+| 🔐 **完全离线** | 所有操作都在本地完成 |
+
+## 📥 安装方法
+
+### 方式一：从 Release 下载（推荐）
+
+1. 前往 [Releases](https://github.com/1837620622/Windsurf-Switcher-Free/releases) 页面
+2. 下载最新版本的 `Windsurf-Switcher-Free.vsix` 文件
+3. 在 Windsurf 中安装：
+   - **Mac**: 按 `Cmd+Shift+P`
+   - **Windows**: 按 `Ctrl+Shift+P`
+4. 输入 `Install from VSIX`，选择下载的文件
+5. 安装完成后，左侧活动栏会出现「账户切换」图标
+
+### 方式二：从源码构建
+
+```bash
+# 克隆仓库
+git clone https://github.com/1837620622/Windsurf-Switcher-Free.git
+cd Windsurf-Switcher-Free
+
+# 安装依赖
+npm install
+
+# 构建并打包
+npm run package
+```
+
+## 🎯 使用指南
 
 ### 保存当前账户
-1. 点击「💾 保存当前账户」按钮
-2. 输入账户名称和邮箱
-3. 点击「保存」
+
+1. 点击侧边栏的「💾 保存当前账户」按钮
+2. 输入账户名称（便于识别）
+3. 输入邮箱地址
+4. 点击「确认保存」
 
 ### 切换账户
-1. 在账户列表中找到目标账户
-2. 点击「切换」按钮
-3. 确认切换后，重启 Windsurf 生效
 
-### 导入账户配置
-1. 点击「📥 导入配置」按钮
+1. 在账户列表中找到目标账户
+2. 点击「🔄 切换」按钮
+3. 确认切换
+4. **重启 Windsurf 生效**
+
+### 导入配置
+
+1. 点击「📥 导入」按钮
 2. 选择包含账户配置的目录
 3. 导入成功后会出现在账户列表中
 
-### 导出账户配置
-1. 在账户列表中找到要导出的账户
-2. 点击「导出」按钮
-3. 选择导出目标目录
+### 导出配置
 
-## 数据存储位置
+1. 在账户列表中点击「📤 导出」按钮
+2. 选择导出目标目录
 
-所有账户配置存储在：`~/.windsurf-switcher-free/`
+### 打开目录
 
-## 注意事项
+1. 点击「📂 目录」按钮
+2. 系统会自动打开配置存储目录
 
-- 切换账户后需要**重启 Windsurf** 才能生效
+## 📁 数据存储
+
+| 平台 | 存储位置 |
+|:---:|:---|
+| Mac/Windows | `~/.windsurf-switcher-free/profiles/` |
+
+### 备份的数据
+
+- `globalStorage` - 完整认证信息目录
+- `Cookies` / `Cookies-journal` - Cookie 数据
+- `Local Storage` / `Session Storage` - 本地存储
+- `Network Persistent State` - 网络状态
+- `codeium` - Codeium 配置
+
+## ⚠️ 注意事项
+
+> 💡 **重要提示**：切换账户后需要**重启 Windsurf** 才能生效
+
 - 建议在切换前先保存当前账户配置
 - 删除账户配置是不可逆操作，请谨慎操作
+- 配置目录可通过「📂 目录」按钮快速打开
 
-## 作者信息
+## 🤝 相关项目
 
-- **微信**: 1837620622（传康kk）
-- **邮箱**: 2040168455@qq.com
-- **咸鱼/B站**: 万能程序员
+- [winsurf-switch](https://github.com/1837620622/winsurf-switch) - Python 独立版本（支持 Mac/Windows）
+
+---
+
+<div align="center">
+
+## 👨‍💻 作者信息
+
+**万能程序员：传康KK**
+
+| 联系方式 | |
+|:---:|:---|
+| 📱 微信 | 1837620622 |
+| 📧 邮箱 | 2040168455@qq.com |
+| 🎬 咸鱼/B站 | 万能程序员 |
+| ⭐ GitHub | [github.com/1837620622](https://github.com/1837620622) |
+
+---
+
+**🌟 如果这个项目对你有帮助，请给个 Star 支持一下！**
+
+</div>
