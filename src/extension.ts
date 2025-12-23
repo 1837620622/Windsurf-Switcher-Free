@@ -62,6 +62,9 @@ const PLUGIN_DATA_PATH = path.join(
 // 账户配置存储文件
 const PROFILES_FILE = path.join(PLUGIN_DATA_PATH, 'profiles.json');
 
+// state.vscdb 数据库路径（包含当前账户信息）
+const STATE_DB_PATH = path.join(WINDSURF_GLOBAL_STORAGE, 'state.vscdb');
+
 // ============================================================================
 // 工具函数
 // ============================================================================
@@ -73,6 +76,64 @@ const PROFILES_FILE = path.join(PLUGIN_DATA_PATH, 'profiles.json');
 function ensureDir(dirPath: string): void {
     if (!fs.existsSync(dirPath)) {
         fs.mkdirSync(dirPath, { recursive: true });
+    }
+}
+
+/**
+ * 从 state.vscdb 读取当前账户信息
+ * @returns {name, email} 或 null
+ */
+function getCurrentAccountInfo(): { name: string; email: string } | null {
+    try {
+        if (!fs.existsSync(STATE_DB_PATH)) {
+            return null;
+        }
+        
+        // 读取 SQLite 文件内容（二进制）
+        const buffer = fs.readFileSync(STATE_DB_PATH);
+        const content = buffer.toString('utf-8');
+        
+        // 查找 windsurfAuthStatus JSON 数据
+        const authStatusMatch = content.match(/windsurfAuthStatus[\x00-\x1f]*([{].*?"email".*?[}])/s);
+        if (authStatusMatch) {
+            // 提取 JSON 部分
+            const jsonStr = authStatusMatch[1];
+            try {
+                const data = JSON.parse(jsonStr);
+                return {
+                    name: data.name || '未知',
+                    email: data.email || '未知'
+                };
+            } catch {
+                // JSON 解析失败，尝试用正则提取
+                const nameMatch = jsonStr.match(/"name"\s*:\s*"([^"]+)"/);
+                const emailMatch = jsonStr.match(/"email"\s*:\s*"([^"]+)"/);
+                if (emailMatch) {
+                    return {
+                        name: nameMatch ? nameMatch[1] : '未知',
+                        email: emailMatch[1]
+                    };
+                }
+            }
+        }
+        
+        // 备用方案：直接搜索 email 模式
+        const emailPattern = /"email"\s*:\s*"([^"@]+@[^"]+)"/g;
+        const matches = content.match(emailPattern);
+        if (matches && matches.length > 0) {
+            const emailMatch = matches[0].match(/"email"\s*:\s*"([^"]+)"/);
+            if (emailMatch) {
+                return {
+                    name: emailMatch[1].split('@')[0],
+                    email: emailMatch[1]
+                };
+            }
+        }
+        
+        return null;
+    } catch (error) {
+        console.error('读取账户信息失败:', error);
+        return null;
     }
 }
 
@@ -538,6 +599,10 @@ class SidebarProvider implements vscode.WebviewViewProvider {
                 case 'openProfilesDir':
                     await this.handleOpenProfilesDir();
                     break;
+                    
+                case 'getCurrentAccount':
+                    this.sendCurrentAccount();
+                    break;
             }
         });
     }
@@ -551,6 +616,19 @@ class SidebarProvider implements vscode.WebviewViewProvider {
                 type: 'profiles',
                 profiles: this.profileManager.getProfiles(),
                 currentProfile: this.profileManager.getCurrentProfileId()
+            });
+        }
+    }
+
+    /**
+     * 发送当前账户信息到 Webview
+     */
+    private sendCurrentAccount(): void {
+        if (this._view) {
+            const accountInfo = getCurrentAccountInfo();
+            this._view.webview.postMessage({
+                type: 'currentAccount',
+                account: accountInfo
             });
         }
     }
@@ -1117,6 +1195,34 @@ class SidebarProvider implements vscode.WebviewViewProvider {
             background: #667eea;
             color: #fff;
         }
+        
+        /* ================================================================ */
+        /* 当前账户显示                                                       */
+        /* ================================================================ */
+        .current-account {
+            background: linear-gradient(135deg, rgba(17, 153, 142, 0.1) 0%, rgba(56, 239, 125, 0.1) 100%);
+            border: 1px solid rgba(17, 153, 142, 0.3);
+            border-radius: 10px;
+            padding: 12px;
+            margin-bottom: 16px;
+            text-align: center;
+        }
+        
+        .current-account-label {
+            font-size: 11px;
+            color: var(--vscode-descriptionForeground);
+            margin-bottom: 4px;
+        }
+        
+        .current-account-info {
+            font-size: 13px;
+            font-weight: 600;
+            color: #11998e;
+        }
+        
+        .current-account-info.not-logged {
+            color: var(--vscode-errorForeground);
+        }
     </style>
 </head>
 <body>
@@ -1131,6 +1237,14 @@ class SidebarProvider implements vscode.WebviewViewProvider {
             <span class="tag">🔒 无自动下线</span>
             <span class="tag">💾 本地存储</span>
         </div>
+    </div>
+    
+    <!-- ================================================================ -->
+    <!-- 当前账户信息                                                      -->
+    <!-- ================================================================ -->
+    <div class="current-account" id="currentAccount">
+        <div class="current-account-label">👤 当前账户</div>
+        <div class="current-account-info" id="currentAccountInfo">正在读取...</div>
     </div>
     
     <!-- ================================================================ -->
@@ -1212,6 +1326,7 @@ class SidebarProvider implements vscode.WebviewViewProvider {
         // 当前账户列表
         let profiles = [];
         let currentProfileId = '';
+        let currentAccount = null;
         
         // ============================================================
         // 初始化
@@ -1219,6 +1334,8 @@ class SidebarProvider implements vscode.WebviewViewProvider {
         window.addEventListener('load', () => {
             // 请求账户列表
             vscode.postMessage({ type: 'getProfiles' });
+            // 请求当前账户信息
+            vscode.postMessage({ type: 'getCurrentAccount' });
         });
         
         // ============================================================
@@ -1232,7 +1349,26 @@ class SidebarProvider implements vscode.WebviewViewProvider {
                 currentProfileId = message.currentProfile || '';
                 renderProfiles();
             }
+            
+            if (message.type === 'currentAccount') {
+                currentAccount = message.account;
+                updateCurrentAccountDisplay();
+            }
         });
+        
+        // ============================================================
+        // 更新当前账户显示
+        // ============================================================
+        function updateCurrentAccountDisplay() {
+            const infoEl = document.getElementById('currentAccountInfo');
+            if (currentAccount && currentAccount.email) {
+                infoEl.textContent = currentAccount.name + ' (' + currentAccount.email + ')';
+                infoEl.classList.remove('not-logged');
+            } else {
+                infoEl.textContent = '未登录或无法读取';
+                infoEl.classList.add('not-logged');
+            }
+        }
         
         // ============================================================
         // 渲染账户列表
@@ -1278,6 +1414,11 @@ class SidebarProvider implements vscode.WebviewViewProvider {
         // ============================================================
         function showSaveForm() {
             document.getElementById('saveForm').classList.add('show');
+            // 自动填充当前账户信息
+            if (currentAccount && currentAccount.email) {
+                document.getElementById('profileName').value = currentAccount.name || currentAccount.email.split('@')[0];
+                document.getElementById('profileEmail').value = currentAccount.email;
+            }
         }
         
         function hideSaveForm() {

@@ -4,6 +4,10 @@
   "description": "Windsurf 账户切换工具 - 无心跳检测、无自动下线、完全本地化",
   "version": "1.0.0",
   "publisher": "local-dev",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/1837620622/Windsurf-Switcher-Free"
+  },
   "icon": "media/icon.png",
   "engines": {
     "vscode": "^1.80.0"
