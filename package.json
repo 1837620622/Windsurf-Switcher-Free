@@ -1,0 +1,73 @@
+{
+  "name": "windsurf-switcher-free",
+  "displayName": "Windsurf Switcher Free",
+  "description": "Windsurf 账户切换工具 - 无心跳检测、无自动下线、完全本地化",
+  "version": "1.0.0",
+  "publisher": "local-dev",
+  "icon": "media/icon.png",
+  "engines": {
+    "vscode": "^1.80.0"
+  },
+  "categories": [
+    "Other"
+  ],
+  "main": "./dist/extension.js",
+  "activationEvents": [
+    "onStartupFinished"
+  ],
+  "contributes": {
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "windsurfSwitcherFree",
+          "title": "账户切换",
+          "icon": "media/sidebar-icon.svg"
+        }
+      ]
+    },
+    "views": {
+      "windsurfSwitcherFree": [
+        {
+          "id": "windsurfSwitcherFree.view",
+          "name": "账户管理",
+          "type": "webview"
+        }
+      ]
+    },
+    "commands": [
+      {
+        "command": "windsurfSwitcherFree.refresh",
+        "title": "刷新账户列表",
+        "icon": "$(refresh)"
+      },
+      {
+        "command": "windsurfSwitcherFree.importProfile",
+        "title": "导入账户配置"
+      },
+      {
+        "command": "windsurfSwitcherFree.exportProfile",
+        "title": "导出当前账户"
+      },
+      {
+        "command": "windsurfSwitcherFree.switchProfile",
+        "title": "切换账户"
+      }
+    ]
+  },
+  "scripts": {
+    "build": "esbuild src/extension.ts --bundle --platform=node --target=node16 --external:vscode --outfile=dist/extension.js --sourcemap",
+    "build:prod": "esbuild src/extension.ts --bundle --platform=node --target=node16 --external:vscode --outfile=dist/extension.js --minify",
+    "watch": "npm run build -- --watch",
+    "package": "npm run build:prod && vsce package -o Windsurf-Switcher-Free.vsix --allow-missing-repository --skip-license"
+  },
+  "devDependencies": {
+    "@types/node": "^18.0.0",
+    "@types/vscode": "^1.80.0",
+    "@vscode/vsce": "^2.15.0",
+    "esbuild": "^0.20.0",
+    "typescript": "^5.0.0"
+  },
+  "dependencies": {
+    "uuid": "^9.0.0"
+  }
+}
